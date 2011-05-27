@@ -315,9 +315,16 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 							}
 							this.recordedLetters[e.keyCode - 65].volume = 0.5;
 							this.recordedLetters[e.keyCode - 65].play();
+							if (this.typedLetters.length == 0) {
+								this.drawCombat();
+							}
 							this.typedLetters.push(String.fromCharCode(e.keyCode));
 							if (this.typedLetters[this.typedLetters.length-1].toLowerCase() != this.currentWord.charAt(this.typedLetters.length-1).toLowerCase()) {
 								this.currentlyTalking = true;
+								var ctx = canvas.getContext("2d");
+								ctx.fillStyle = "red";
+								ctx.font = "25px Courier";
+								ctx.fillText(this.typedLetters[this.typedLetters.length-1],10+20*(this.typedLetters.length-1),180);
 								setTimeout(dojo.hitch(this,function(){
 									//miss
 									this.stopTimer = true;
@@ -335,12 +342,17 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 								//hit
 								this.stopTimer = true;
 								this.typeWord = false;
+								var ctx = canvas.getContext("2d");
+								ctx.fillStyle = "#000";
+								ctx.font = "25px Courier";
+								ctx.fillText(this.typedLetters[this.typedLetters.length-1],10+20*(this.typedLetters.length-1),180);
 								this.typedLetters = [];
 								if (this.combatMode == 'defend') {
 									this.takeDamage();
 								} else {
 									this.hitMonster();
 								}
+								
 							} else {
 								if (this.power < 100) {
 									this.power+=(3-this.difficulty/2);
@@ -348,6 +360,10 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 										this.power = 102;
 									}
 								}
+								var ctx = canvas.getContext("2d");
+								ctx.fillStyle = "#000";
+								ctx.font = "25px Courier";
+								ctx.fillText(this.typedLetters[this.typedLetters.length-1],10+20*(this.typedLetters.length-1),180);
 							}
 							if (this.typedLetters.length > 0) {
 								//this.recordedLetters[e.keyCode - 65].volume = 0.3;
