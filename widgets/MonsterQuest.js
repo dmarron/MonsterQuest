@@ -120,8 +120,8 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 				//enter or space pressed
 				if (this.inCombat  && !this.currentlyTalking && !this.typeWord) {
 					combatDelay = false;
-					this.recordedMessages[5].volume = 1;
-					this.recordedMessages[5].play();
+					this.recordedMessages[22].volume = 1;
+					this.recordedMessages[22].play();
 				}
 				if (this.justWonBattle) {
 					this.justWonBattle = false;
@@ -138,6 +138,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 					this.recordedMessages[2].volume = 0;
 					this.recordedMessages[3].volume = 0;
 					this.recordedMessages[4].volume = 0;
+					this.recordedMessages[5].volume = 0;
 					if (this.currentRow == 1) {
 						this.difficulty = this.currentRow;
 						this.area = 'tutorial';
@@ -163,6 +164,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 						this.tutorialMessages[1].volume = 0;
 						this.tutorialMessages[2].volume = 0;
 						this.tutorialMessages[3].volume = 0;
+						this.recordedMessages[4].volume = 0;
 						this.tutorialPage ++;
 						if (this.tutorialPage == 4) {
 							this.combat('Tutorial',25,110,5,10);
@@ -175,7 +177,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 				//left arrow pressed
 				if (this.inCombat && !this.currentlyTalking && !this.typeWord) {
 					//say health and mana
-					this.recordedMessages[5].volume = 0;
+					this.recordedMessages[22].volume = 0;
 					combatDelay = false;
 					this.readHealthAndMana();
 				}
@@ -183,7 +185,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 				//up arrow pressed
 				if (this.inCombat) {
 					if (!this.currentlyTalking) {
-						this.recordedMessages[5].volume = 0;
+						this.recordedMessages[22].volume = 0;
 						combatDelay = false;
 						this.currentlyTalking = true;
 						this.recordedMessages[6].play();
@@ -201,13 +203,15 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 						this.recordedMessages[1].volume = 0;
 						this.recordedMessages[2].volume = 0;
 						this.recordedMessages[3].volume = 0;
-						this.recordedMessages[4].volume = 1;
-						this.recordedMessages[4].play();
+						this.recordedMessages[4].volume = 0;
+						this.recordedMessages[5].volume = 1;
+						this.recordedMessages[5].play();
 					} else if (this.currentRow == 1) {
 						this.recordedMessages[0].volume = 0;
 						this.recordedMessages[2].volume = 0;
 						this.recordedMessages[3].volume = 0;
 						this.recordedMessages[4].volume = 0;
+						this.recordedMessages[5].volume = 0;
 						this.recordedMessages[1].volume = 1;
 						this.recordedMessages[1].play();
 					} else if (this.currentRow == 2) {
@@ -215,17 +219,25 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 						this.recordedMessages[1].volume = 0;
 						this.recordedMessages[3].volume = 0;
 						this.recordedMessages[4].volume = 0;
+						this.recordedMessages[5].volume = 0;
 						this.recordedMessages[2].volume = 1;
 						this.recordedMessages[2].play();
 					} else if (this.currentRow == 3) {
-						
-					} else if (this.currentRow == 4) {
 						this.recordedMessages[0].volume = 0;
 						this.recordedMessages[1].volume = 0;
 						this.recordedMessages[2].volume = 0;
 						this.recordedMessages[4].volume = 0;
+						this.recordedMessages[5].volume = 0;
 						this.recordedMessages[3].volume = 1;
 						this.recordedMessages[3].play();
+					} else if (this.currentRow == 4) {
+						this.recordedMessages[0].volume = 0;
+						this.recordedMessages[1].volume = 0;
+						this.recordedMessages[2].volume = 0;
+						this.recordedMessages[3].volume = 0;
+						this.recordedMessages[5].volume = 0;
+						this.recordedMessages[4].volume = 1;
+						this.recordedMessages[4].play();
 					}
 					this.drawIntroPage();
 				}
@@ -233,7 +245,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 			} else if (e.keyCode == 39) {
 				//right arrow pressed
 				if (this.inCombat && !this.currentlyTalking && !this.typeWord) {
-					this.recordedMessages[5].volume = 0;
+					this.recordedMessages[22].volume = 0;
 					combatDelay = false;
 					//say: the monster has ... percent of its health left
 					this.audioQueue = [];
@@ -246,7 +258,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 				//down arrow pressed
 				if (this.inCombat) {
 					if (!this.currentlyTalking) {
-						this.recordedMessages[5].volume = 0;
+						this.recordedMessages[22].volume = 0;
 						combatDelay = false;
 					}
 				} else if (this.area == "intro") {
@@ -257,6 +269,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 						this.recordedMessages[2].volume = 0;
 						this.recordedMessages[3].volume = 0;
 						this.recordedMessages[4].volume = 0;
+						this.recordedMessages[5].volume = 0;
 						this.recordedMessages[1].volume = 1;
 						this.recordedMessages[1].play();
 					} else if (this.currentRow == 2) {
@@ -267,21 +280,29 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 						this.recordedMessages[2].volume = 1;
 						this.recordedMessages[2].play();
 					} else if (this.currentRow == 3) {
-						
-					} else if (this.currentRow == 4) {
 						this.recordedMessages[0].volume = 0;
 						this.recordedMessages[1].volume = 0;
 						this.recordedMessages[2].volume = 0;
 						this.recordedMessages[4].volume = 0;
+						this.recordedMessages[5].volume = 0;
 						this.recordedMessages[3].volume = 1;
 						this.recordedMessages[3].play();
+					} else if (this.currentRow == 4) {
+						this.recordedMessages[0].volume = 0;
+						this.recordedMessages[1].volume = 0;
+						this.recordedMessages[2].volume = 0;
+						this.recordedMessages[3].volume = 0;
+						this.recordedMessages[5].volume = 0;
+						this.recordedMessages[4].volume = 1;
+						this.recordedMessages[4].play();
 					} else if (this.currentRow == 5) {
 						this.recordedMessages[0].volume = 0;
 						this.recordedMessages[1].volume = 0;
 						this.recordedMessages[2].volume = 0;
 						this.recordedMessages[3].volume = 0;
-						this.recordedMessages[4].volume = 1;
-						this.recordedMessages[4].play();
+						this.recordedMessages[4].volume = 0;
+						this.recordedMessages[5].volume = 1;
+						this.recordedMessages[5].play();
 					}
 					this.drawIntroPage();
 				} else if (this.area == 'tutorial') {
@@ -290,6 +311,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 						this.tutorialMessages[1].volume = 0;
 						this.tutorialMessages[2].volume = 0;
 						this.tutorialMessages[3].volume = 0;
+						this.tutorialMessages[4].volume = 0;
 						this.tutorial(this.tutorialPage);
 					}
 				}
@@ -541,8 +563,8 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		setTimeout(dojo.hitch(this,function(){
 			if (combatDelay) {
 				//remind the player what to do if idle
-				this.recordedMessages[5].volume = 1;
-				this.recordedMessages[5].play();
+				this.recordedMessages[22].volume = 1;
+				this.recordedMessages[22].play();
 			}
 		}),delay);
 	},
@@ -1021,18 +1043,18 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		var normal = dojo.doc.createElement('audio');
 		normal.setAttribute('src', 'sounds/intro/NewNormalGame' + this._ext);
 		this.recordedMessages.push(normal);
-		//(3) Say "New Insane Game"
+		//(3) Say "New Difficult Game"
+		var difficult = dojo.doc.createElement('audio');
+		difficult.setAttribute('src', 'sounds/intro/NewDifficultGame' + this._ext);
+		this.recordedMessages.push(difficult);
+		//(4) Say "New Insane Game"
 		var insane = dojo.doc.createElement('audio');
 		insane.setAttribute('src', 'sounds/intro/NewInsaneGame' + this._ext);
 		this.recordedMessages.push(insane);
-		//(4) Say "Load Game"
+		// (5) Say "Load Game"
 		var load = dojo.doc.createElement('audio');
 		load.setAttribute('src', 'sounds/intro/LoadGame' + this._ext);
 		this.recordedMessages.push(load);
-		// (5) Say "Press up to attack or down to cast a spell"
-		var updown = dojo.doc.createElement('audio');
-		updown.setAttribute('src', 'sounds/combat/PressUpToAttack' + this._ext);
-		this.recordedMessages.push(updown);
 		// (6) Say "Your Word Is"
 		var yourword = dojo.doc.createElement('audio');
 		yourword.setAttribute('src', 'sounds/combat/YourWordIs' + this._ext);
@@ -1097,6 +1119,10 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		var gold = dojo.doc.createElement('audio');
 		gold.setAttribute('src', 'sounds/general/PressSpaceToContinue' + this._ext);
 		this.recordedMessages.push(gold);
+		// (22) Say "Press up to attack or down to cast a spell"
+		var updown = dojo.doc.createElement('audio');
+		updown.setAttribute('src', 'sounds/combat/PressUpToAttack' + this._ext);
+		this.recordedMessages.push(updown);
 		
 		//Sound effects
 		//(0) "Ding" sound for player attack
