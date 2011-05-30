@@ -75,9 +75,9 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		this.skippedSound = 0;
 		this.pressedShift = false;
 		this.level = 1;
-		this.baseCombatLevel = 10;
-		this.combatLevel = 10;
-		this.baseMagicLevel = 10;
+		this.minCombatLevel = 10;
+		this.combatLevel = 100;
+		this.minMagicLevel = 10;
 		this.magicLevel = 10;
 		this.maxHealth = 80 + 2*this.combatLevel;
 		this.currentHealth = 80 + 2*this.combatLevel;
@@ -586,7 +586,11 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 					}
 				} else if (this.area == 'town') {
 					if (String.fromCharCode(e.keyCode) == 'Q') {
-						
+						this.tutorialMessages[4].volume = 0;
+						this.tutorialMessages[5].volume = 0;
+						this.audioQueue = [];
+						this.recordedMessages[30].volume = 1;
+						this.recordedMessages[30].play();
 					} else if (String.fromCharCode(e.keyCode) == 'T') {
 						this.tutorialMessages[4].volume = 0;
 						this.enterTraining();
@@ -598,7 +602,13 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 						this.recordedLetters[e.keyCode - 65].play();
 					}
 				} else if (this.area == 'training') {
-					if (String.fromCharCode(e.keyCode) == 'T') {
+					if (String.fromCharCode(e.keyCode) == 'Q') {
+						this.tutorialMessages[4].volume = 0;
+						this.tutorialMessages[5].volume = 0;
+						this.audioQueue = [];
+						this.recordedMessages[30].volume = 1;
+						this.recordedMessages[30].play();
+					} else if (String.fromCharCode(e.keyCode) == 'T') {
 						this.tutorialMessages[5].volume = 0;
 						this.audioQueue = [];
 						this.audioQueue.push(this.tutorialMessages[6]);
@@ -1442,14 +1452,18 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		var cantafford = dojo.doc.createElement('audio');
 		cantafford.setAttribute('src', 'sounds/general/NotEnoughGold' + this._ext);
 		this.recordedMessages.push(cantafford);
-		// (27) Say "That is spelled"
+		// (28) Say "That is spelled"
 		var spelled = dojo.doc.createElement('audio');
 		spelled.setAttribute('src', 'sounds/combat/ThatIsSpelled' + this._ext);
 		this.recordedMessages.push(spelled);
-		// (28) Say "Press space to repeat the word or press shift to spell the word
+		// (29) Say "Press space to repeat the word or press shift to spell the word
 		var press = dojo.doc.createElement('audio');
 		press.setAttribute('src', 'sounds/combat/PressSpaceToRepeat' + this._ext);
 		this.recordedMessages.push(press);
+		// (30) Say "Press space to repeat the word or press shift to spell the word
+		var noquests = dojo.doc.createElement('audio');
+		noquests.setAttribute('src', 'sounds/quests/NoAvailableQuests' + this._ext);
+		this.recordedMessages.push(noquests);
 		
 		//Sound effects
 		//(0) "Ding" sound for player attack
