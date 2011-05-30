@@ -1,1 +1,2 @@
 Tutorial: tutorial,learning,introduction,practice,beginning
+Training Dummy: flask, flag, dash, glass, has, gas, shall, slash

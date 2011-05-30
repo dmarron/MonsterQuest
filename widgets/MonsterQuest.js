@@ -50,9 +50,10 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		this.audioQueue = [];
 		this.currentlyTalking = false;
 		this.typeWord = false;
+		this.spelling = false;
 		this.readWord = false;
 		this.startedTimer = false;
-		this.stopTimer = false;
+		this.stopTimer = true;
 		this.timerCounter = 0;
 		this.letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 		this.gameStarted = false;
@@ -69,6 +70,8 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		this.justWonBattle = false;
 		this.justLostBattle = false;
 		this.combatMode = 'attack';
+		this.combatDelay = false;
+		this.typingDelay = false;
 		this.skippedSound = 0;
 		this.pressedShift = false;
 		this.level = 1;
@@ -82,6 +85,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		this.currentMana = 80 + 2*this.magicLevel;
 		this.power = 0;
 		this.monsterName = '';
+		this.monsterIndex = 0;
 		this.monsterMaxHealth = 0;
 		this.monsterHealth = 0;
 		this.monsterAttack = 0;
@@ -90,7 +94,10 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		this.damage = 0;
 		this.experience = 0;
 		this.gold = 0;
+		this.trainingGold = 100;
+		this.questLevel = 0;
 		this.knownSpells = ['LIST','DART'];
+		this.knownAreas = [];
 		this.totalSpells = 1;
 		this.possibleSpells = [];
 		this.monsters = [];
@@ -102,6 +109,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		for (i = 0; i < dataSplit.length; i++) {
 			//remove all whitespace
 			dataSplit[i] = dataSplit[i].split(' ').join('');
+			dataSplit[i] = dataSplit[i].replace(/[\r\n]+/g, "");
 			if (dataSplit[i].indexOf(':') != -1) {
 				var monster = {
 					name: "Undefined",
@@ -139,10 +147,18 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 					}
 				} else if (this.justWonBattle) {
 					this.justWonBattle = false;
+					this.audioQueue = [];
+					this.recordedMessages[21].volume = 0;
+					this.currentlyTalking = false;
+					this.currentHealth = this.maxHealth;
+					this.currentMana = this.maxMana;
 					if (this.experience > this.level*this.level*100) {
 						this.levelUp();
 					} else if (this.area == 'town') {
 						this.enterTown();
+					} else if (this.area == 'training') {
+						this.enterTraining();
+						this.tutorialMessages[7].play();
 					}
 				} else if (this.area == 'town') {
 				
@@ -177,6 +193,13 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 						this.area = 'intro';
 						this.tutorialPage = 0;
 						this.justLostBattle = false;
+						this.recordedMessages[26].volume = 0;
+						this.recordedMessages[0].volume = 1;
+						this.recordedMessages[0].play();
+						this.currentRow = 2;
+						this.currentHealth = this.maxHealth;
+						this.currentMana = this.maxMana;
+						this.drawIntroPage();
 					} else if (!this.inCombat) {
 						this.tutorialMessages[0].volume = 0;
 						this.tutorialMessages[1].volume = 0;
@@ -184,12 +207,18 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 						this.tutorialMessages[3].volume = 0;
 						this.recordedMessages[4].volume = 0;
 						this.tutorialPage ++;
+						if (this.tutorialPage == 1) {
+							this.tutorialPage ++;
+						}
 						if (this.tutorialPage == 4) {
 							this.combat('Tutorial',25,110,5,10);
 						} else {
 							this.tutorial(this.tutorialPage);
 						}
 					}
+				} else if (this.area == 'training') {
+					this.tutorialMessages[5].volume = 0;
+					this.combat('Training Dummy',5,75,5,0);
 				}
 			} else if (e.keyCode == 37) {
 				//left arrow pressed - player health & mana information
@@ -271,12 +300,17 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 						this.recordedMessages[4].play();
 					}
 					this.drawIntroPage();
-				} else if (this.area == 'tutorial') {
+				} else if (this.area == 'tutorial' && !this.justLostBattle) {
 					this.tutorialMessages[0].volume = 0;
 					this.tutorialMessages[1].volume = 0;
 					this.tutorialMessages[2].volume = 0;
 					this.tutorialMessages[3].volume = 0;
 					this.tutorial(this.tutorialPage);
+				} else if (this.area == 'town') {
+					this.enterTown();
+				} else if (this.area == 'training') {
+					this.tutorialMessages[5].volume = 1;
+					this.tutorialMessages[5].play();
 				}
 				this.soundEnded();
 			} else if (e.keyCode == 39) {
@@ -351,7 +385,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 						this.recordedMessages[5].play();
 					}
 					this.drawIntroPage();
-				} else if (this.area == 'tutorial') {
+				} else if (this.area == 'tutorial' && !this.justLostBattle) {
 					this.tutorialMessages[0].volume = 0;
 					this.tutorialMessages[1].volume = 0;
 					this.tutorialMessages[2].volume = 0;
@@ -363,18 +397,31 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 				/*if (this.area == 'intro') {
 					this.tutorial(this.tutorialPage);
 				}*/
-				//shift pressed - skip tutorial
-				if (this.area == 'tutorial' && !this.inCombat) {
-					this.area = 'town';
-					this.experience += 5;
-					this.gold += 10;
-					this.enterTown();
+				//shift pressed - spell out a word
+				if (this.inCombat) {
+					if (this.typeWord && !this.currentlyTalking) {
+						this.audioQueue = [];
+						this.stopTimer = true;
+						this.recordedMessages[29].volume = 0;
+						this.typingDelay = false;
+						this.onceConnect(this.recordedMessages[28],'ended',this,'spellWord');
+						this.recordedMessages[28].play();
+					}
+				} else if (this.area == 'tutorial' && !this.justLostBattle) {
+					//skip tutorial
+					this.tutorialMessages[0].volume = 0;
+					this.tutorialMessages[1].volume = 0;
+					this.tutorialMessages[2].volume = 0;
+					this.tutorialMessages[3].volume = 0;
+					this.combat('Tutorial',25,110,5,10);
 				}
 			} else if (this.letters.indexOf(String.fromCharCode(e.keyCode)) != -1) {
 				//letter typed
 				if (this.inCombat) {
 					if (!this.currentlyTalking) {
 						if (this.typeWord) {
+							this.recordedMessages[29].volume = 0;
+							this.typingDelay = false;
 							if (this.readWord && !this.startedTimer) {
 								this.startPowerTimer();
 							}
@@ -538,7 +585,38 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 						}
 					}
 				} else if (this.area == 'town') {
-				
+					if (String.fromCharCode(e.keyCode) == 'Q') {
+						
+					} else if (String.fromCharCode(e.keyCode) == 'T') {
+						this.tutorialMessages[4].volume = 0;
+						this.enterTraining();
+						this.area = 'training';
+						this.tutorialMessages[5].volume = 1;
+						this.tutorialMessages[5].play();
+					} else {
+						this.recordedLetters[e.keyCode - 65].volume = 0.5;
+						this.recordedLetters[e.keyCode - 65].play();
+					}
+				} else if (this.area == 'training') {
+					if (String.fromCharCode(e.keyCode) == 'T') {
+						this.tutorialMessages[5].volume = 0;
+						this.audioQueue = [];
+						this.audioQueue.push(this.tutorialMessages[6]);
+						this.readNumber(this.trainingGold);
+						this.audioQueue.push(this.recordedMessages[20]);
+						if (this.gold < this.trainingGold) {
+							this.audioQueue.push(this.recordedMessages[27]);
+						}
+						this.soundEnded();
+					} else if (String.fromCharCode(e.keyCode) == 'B') {
+						this.area = 'town';
+						this.audioQueue = [];
+						this.tutorialMessages[5].volume = 0;
+						this.enterTown();
+					} else {
+						this.recordedLetters[e.keyCode - 65].volume = 0.5;
+						this.recordedLetters[e.keyCode - 65].play();
+					}
 				} else {
 					this.recordedLetters[e.keyCode - 65].volume = 0.3;
 					this.recordedLetters[e.keyCode - 65].play();
@@ -596,11 +674,18 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 			this.currentlyTalking = true;
 			this.onceConnect(this.audioQueue[0], 'ended', this, 'audioSoundEnded');
 			this.audioQueue[0].load();
+			this.audioQueue[0].volume = 1;
 			this.audioQueue[0].play();
 			//remove the first element of audioQueue
 			this.audioQueue.shift();
 			if (this.audioQueue.length == 0) {
 				this.currentlyTalking = false;
+				if (this.spelling) {
+					setTimeout(dojo.hitch(this,function(){
+						this.playDing();
+					}),500);
+					this.spelling = false;
+				}
 			}
 		}
 	},
@@ -653,6 +738,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		this.currentlyTalking = false;
 	},
 	combat: function(name,monAttack,monHealth,monExp,monGold) {
+		this.audioQueue = [];
 		this.currentlyTalking = true;
 		this.inCombat = true;
 		this.monsterName = name;
@@ -662,15 +748,20 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		this.monsterExperience = monExp;
 		this.monsterGold = monGold;
 		this.drawCombat();
-		this.soundEffects[2].volume = 0.5;
-		this.onceConnect(this.soundEffects[2], 'ended', this, 'readMonster');
-		this.soundEffects[2].play();
 		for (i = 0; i < this.monsters.length; i++) {
-			if (this.monsters[i].name == this.monsterName) {
+			if (this.monsters[i].name.toLowerCase() == this.monsterName.split(' ').join('').toLowerCase()) {
 				this.currentWords = this.monsters[i].words;
+				this.monsterIndex = i;
 				i = this.monsters.length;
 			}
 		}
+		if (this.currentWords.length == 0) {
+			this.currentWords.push('undefined');
+			this.currentWords.push('undefined');
+		}
+		this.soundEffects[2].volume = 0.5;
+		this.onceConnect(this.soundEffects[2], 'ended', this, 'readMonster');
+		this.soundEffects[2].play();
 		this.recordedWords = [];
 		for (i = 0; i < this.currentWords.length; i++) {
 			var wordi = dojo.doc.createElement('audio');
@@ -683,8 +774,8 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		this.music[0].volume = 0.15;
 		this.onceConnect(this.music[0], 'ended', this, 'musicLoop');
 		this.music[0].play();
-		this.onceConnect(this.monsterMessages[0], 'ended', this, 'combatLoop');
-		setTimeout(dojo.hitch(this,function(){this.monsterMessages[0].play();}),500);
+		this.onceConnect(this.monsterMessages[this.monsterIndex], 'ended', this, 'combatLoop');
+		setTimeout(dojo.hitch(this,function(){this.monsterMessages[this.monsterIndex].play();}),500);
 	},
 	combatLoop: function(e) {
 		//regenerate health and mana
@@ -700,10 +791,11 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		this.drawCombat();
 		this.combatMode = 'attack';
 		this.currentlyTalking = false;
+		this.stopTimer = true;
 		delay = 1500;
 		combatDelay = true;
 		setTimeout(dojo.hitch(this,function(){
-			if (combatDelay) {
+			if (combatDelay && !this.typeWord) {
 				//remind the player what to do if idle
 				this.recordedMessages[22].volume = 1;
 				this.recordedMessages[22].play();
@@ -761,7 +853,9 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		this.currentHealth -= this.damage;
 		if (this.currentHealth <= 0) {
 			this.currentHealth = 0;
-			this.loseBattle();
+			this.drawCombat();
+			this.onceConnect(this.soundEffects[5], 'ended', this, 'loseBattle');
+			this.soundEffects[5].play();
 		} else {
 			this.audioQueue = [];
 			this.audioQueue.push(this.recordedMessages[13]);
@@ -800,11 +894,13 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 			ctx.fillStyle = "#000";
 			ctx.font = "20pt Bookman Old Style";
 			ctx.fillText("You were defeated by the Tutorial!",10,30);
-			ctx.fillText("Press space to return to the main level.",10,60);
+			ctx.fillText("Press space to return to the main menu.",10,60);
 			if (this.difficulty > 1) {
 				ctx.fillText("(Consider choosing a lower difficulty level)",10,90);
 			}
 			this.justLostBattle = true;
+			this.recordedMessages[26].volume = 1;
+			this.recordedMessages[26].play();
 			//say, the tutorial monster defeated you.  Perhaps you should try a lower difficulty level.
 		} else {
 			this.area = 'town';
@@ -839,6 +935,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 	},
 	levelUp: function(e) {
 		this.level++;
+		this.enterTown();
 	},
 	drawCombat: function(e) {
 		dojo.empty(this.generateDiv);
@@ -924,6 +1021,8 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 	repeatWord: function(e) {
 		this.recordedWords = [];
 		this.stopTimer = true;
+		this.recordedMessages[29].volume = 0;
+		this.typingDelay = false;
 		for (i = 0; i < this.currentWords.length; i++) {
 			var wordi = dojo.doc.createElement('audio');
 			wordi.setAttribute('src', 'sounds/monsterwords/' + this.currentWords[i] + this._ext);
@@ -936,6 +1035,19 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 				i = this.currentWords.length;
 			}
 		}
+	},
+	spellWord: function(e) {
+		this.stopTimer = true;
+		this.recordedMessages[29].volume = 0;
+		this.typingDelay = false;
+		this.typedLetters = [];
+		this.drawCombat();
+		for (i = 0; i < this.currentWord.length; i++) {
+			this.audioQueue.push(this.recordedLetters[this.currentWord.toUpperCase().charCodeAt(i) - 65]);
+		}
+		this.spelling = true;
+		//this.onceConnect(this.recordedLetters[this.currentWord.toUpperCase().charCodeAt(this.currentWord.length - 1) - 65],'ended',this,'playDing');
+		this.soundEnded();
 	},
 	playDing: function(e) {
 		this.startedTimer = false;
@@ -950,6 +1062,13 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 			this.soundEffects[0].play();
 			this.startedTimer = true;
 			this.startPowerTimer();
+			this.typingDelay = true;
+			setTimeout(dojo.hitch(this,function(){
+				if (this.typingDelay && !this.currentlyTalking) {
+					this.recordedMessages[29].volume = 1;
+					this.recordedMessages[29].play();
+				}
+			}),2000);
 		}),delay);
 	},
 	startPowerTimer: function(e) {
@@ -1016,6 +1135,24 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		ctx.fillStyle = "#000";
 		ctx.font = "20pt Bookman Old Style";
 		ctx.fillText("You are in town.",10,30);
+		if (this.questLevel == 0) {
+			this.tutorialMessages[4].volume = 1;
+			this.tutorialMessages[4].play();
+		}
+	},
+	enterTraining: function(e) {
+		dojo.empty(this.generateDiv);
+		canvas = dojo.doc.createElement('canvas');
+		canvas.setAttribute('width',800); 
+		canvas.setAttribute('height',800); 
+		dojo.place(canvas, this.generateDiv);
+		var ctx = canvas.getContext("2d");
+		ctx.lineWidth = 1;
+		ctx.fillStyle = "#fff";
+		ctx.fillRect(0,0,canvas.width,canvas.height);
+		ctx.fillStyle = "#000";
+		ctx.font = "20pt Bookman Old Style";
+		ctx.fillText("Training Ground.",10,30);
 	},
 	readHealthAndMana: function() {
 		this.audioQueue = [];
@@ -1297,6 +1434,22 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		var youknow = dojo.doc.createElement('audio');
 		youknow.setAttribute('src', 'sounds/combat/YouKnow' + this._ext);
 		this.recordedMessages.push(youknow);
+		// (26) Say "You were defeated by the tutorial monster.  Press space to go back to the main menu."
+		var pwned = dojo.doc.createElement('audio');
+		pwned.setAttribute('src', 'sounds/intro/TutorialDefeat' + this._ext);
+		this.recordedMessages.push(pwned);
+		// (27) Say "You can't afford that"
+		var cantafford = dojo.doc.createElement('audio');
+		cantafford.setAttribute('src', 'sounds/general/NotEnoughGold' + this._ext);
+		this.recordedMessages.push(cantafford);
+		// (27) Say "That is spelled"
+		var spelled = dojo.doc.createElement('audio');
+		spelled.setAttribute('src', 'sounds/combat/ThatIsSpelled' + this._ext);
+		this.recordedMessages.push(spelled);
+		// (28) Say "Press space to repeat the word or press shift to spell the word
+		var press = dojo.doc.createElement('audio');
+		press.setAttribute('src', 'sounds/combat/PressSpaceToRepeat' + this._ext);
+		this.recordedMessages.push(press);
 		
 		//Sound effects
 		//(0) "Ding" sound for player attack
@@ -1304,7 +1457,8 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		//(2) Battle intro clip
 		//(3) Hit sound
 		//(4) Congratulatory sound
-		for (var i = 0; i <= 4; i++) {
+		//(5) Defeat sound
+		for (var i = 0; i <= 5; i++) {
 			var sfxi = dojo.doc.createElement('audio');
 			sfxi.setAttribute('src', 'sounds/effects/effect' + i + this._ext);
 			this.soundEffects.push(sfxi);
@@ -1321,7 +1475,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		
 		//Monster messages
 		//(0) You are fighting a Tutorial
-		for (var i = 0; i <= 0; i++) {
+		for (var i = 0; i <= 1; i++) {
 			var monsteri = dojo.doc.createElement('audio');
 			monsteri.setAttribute('src', 'sounds/monsters/monster' + i + this._ext);
 			this.monsterMessages.push(monsteri);
@@ -1356,11 +1510,15 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		//type D A R T to cast magic dart."
 		//(3) Now, using what you have learned, try to defeat the tutorial monster.  Remember to press up to attack or down to cast a spell on your turn.  You can also press left to show how much health and mana you have and right to show how much health the monster has.  Press space to begin the battle or down to repeat this.
 		*/
-		//(0) Say "To attack a monster, press the space bar.  You will then hear a word, followed by a ding.  Once that sound plays, type the word as quickly as possible.  The faster you type it, the more damage you will do.  If you type a wrong letter, you will miss the attack.  Press space to continue or up to repeat this.  Press shift to skip the tutorial.
-		//(1) Say "When it is the monster's turn to fight back, you will hear another word followed by a ding.  The more quickly you type the word, the less damage you will take.  If you type a wrong letter, you will take full damage from the attack.  Press space to continue or up to repeat this.
-		//(2) Say "Each turn, you can cast a spell instead of pressing the space bar.  Spells are more powerful than attacks but will use up mana points.  Right now, you know the magic dart spell that you can cast by typing D A R T.  You will then be given a word to type as quickly as possible just like in attacking.  Press space to continue or up to repeat this.
-		//(3) Now, using what you have learned, try to defeat the tutorial monster.  Remember that on your turn you can either attack with the space bar or cast magic dart by typing D A R T.  While you are attacking or defending, you can press the up arrow if you need repeat the given word.  You can also press the left and right arrows on your turn for information about health and mana.  Press space to begin the battle or up to repeat this.
-		for (var i = 0; i <= 3; i++) {
+		//(0) Say "To attack a monster, press the space bar.  You will then hear a word, followed by a ding.  Once that sound plays, type the word as quickly as possible.  The faster you type it, the more damage you will do.  If you type a wrong letter, you will miss the attack.  Press space to continue or up to repeat this.  Press shift to skip the tutorial."
+		//(1) Say "When it is the monster's turn to fight back, you will hear another word followed by a ding.  The more quickly you type the word, the less damage you will take.  If you type a wrong letter, you will take full damage from the attack.  Press space to continue or up to repeat this."
+		//(2) Say "Each turn, you can cast a spell instead of pressing the space bar.  Spells are more powerful than attacks but will use up mana points.  Right now, you know the magic dart spell that you can cast by typing D A R T.  You will then be given a word to type as quickly as possible just like in attacking.  Press space to continue or up to repeat this."
+		//(3) Say "Now, using what you have learned, try to defeat the tutorial monster.  Remember that on your turn you can either attack with the space bar or cast magic dart by typing D A R T.  You can also press shift to spell out the word.  Press space to begin the battle or up to repeat this."
+		//(4) Say "You enter the town of quest-ion in search of fame and fortune.  Press Q to look around town for available quests.  You can also press T to visit the training grounds.  Press up to repeat this."
+		//(5) Say "The training grounds has an assortment of practice dummies, as well as a personal trainer.  Press T to talk to the trainer or press space to beat up one of the dummies.  Press shift to go back to town."
+		//(6) Say "The personal trainer says that he will make you stronger for the cost of"
+		//(7) Say "Press space to beat the stuffing out of another practice dummy, or press B to go back to town"
+		for (var i = 0; i <= 7; i++) {
 			var tutoriali = dojo.doc.createElement('audio');
 			tutoriali.setAttribute('src', 'sounds/intro/tutorial' + i + this._ext);
 			this.tutorialMessages.push(tutoriali);
