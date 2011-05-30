@@ -158,6 +158,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 						this.enterTown();
 					} else if (this.area == 'training') {
 						this.enterTraining();
+						this.tutorialMessages[7].volume = 1;
 						this.tutorialMessages[7].play();
 					}
 				} else if (this.area == 'town') {
@@ -218,6 +219,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 					}
 				} else if (this.area == 'training') {
 					this.tutorialMessages[5].volume = 0;
+					this.tutorialMessages[7].volume = 0;
 					this.combat('Training Dummy',5,75,5,0);
 				}
 			} else if (e.keyCode == 37) {
@@ -605,11 +607,13 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 					if (String.fromCharCode(e.keyCode) == 'Q') {
 						this.tutorialMessages[4].volume = 0;
 						this.tutorialMessages[5].volume = 0;
+						this.tutorialMessages[7].volume = 0;
 						this.audioQueue = [];
 						this.recordedMessages[30].volume = 1;
 						this.recordedMessages[30].play();
 					} else if (String.fromCharCode(e.keyCode) == 'T') {
 						this.tutorialMessages[5].volume = 0;
+						this.tutorialMessages[7].volume = 0;
 						this.audioQueue = [];
 						this.audioQueue.push(this.tutorialMessages[6]);
 						this.readNumber(this.trainingGold);
@@ -622,6 +626,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 						this.area = 'town';
 						this.audioQueue = [];
 						this.tutorialMessages[5].volume = 0;
+						this.tutorialMessages[7].volume = 0;
 						this.enterTown();
 					} else {
 						this.recordedLetters[e.keyCode - 65].volume = 0.5;
@@ -767,7 +772,9 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		}
 		if (this.currentWords.length == 0) {
 			this.currentWords.push('undefined');
-			this.currentWords.push('undefined');
+		}
+		if (this.currentWords.length == 1) {
+			this.currentWords.push(this.currentWords[0]);
 		}
 		this.soundEffects[2].volume = 0.5;
 		this.onceConnect(this.soundEffects[2], 'ended', this, 'readMonster');
@@ -1002,6 +1009,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		this.typedLetters = [];
 		this.drawCombat();
 		if (this.saidWords.length == this.currentWords.length) {
+			//assert: currentWords.length > 1
 			this.saidWords = [];
 			this.recordedWords = [];
 			this.saidWords.push(rand);
@@ -1024,6 +1032,8 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		}
 		this.saidWords.push(rand);
 		this.onceConnect(this.recordedWords[rand],'ended',this, 'playDing');
+		this.onceConnect(this.recordedWords[rand],'error',this,'spellWord');
+		this.recordedWords[rand].load();
 		this.recordedWords[rand].play();
 		this.currentWord = this.currentWords[rand];
 		this.typeWord = true;
@@ -1041,6 +1051,8 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		for (i = 0; i < this.currentWords.length; i++) {
 			if (this.currentWord == this.currentWords[i]) {
 				this.onceConnect(this.recordedWords[i],'ended',this, 'playDing');
+				this.onceConnect(this.recordedWords[i],'error',this,'spellWord');
+				this.recordedWords[i].load();
 				this.recordedWords[i].play();
 				i = this.currentWords.length;
 			}
