@@ -1,5 +1,5 @@
 /**
-* Monster Quest - a typing RPG where you type words to slay monsters and level up.  Programmed by David Marron
+* Monster Quest - a typing RPG where you type words to slay monsters and level up.  Programmed by David Marron.
  */
 dojo.provide('myapp.MonsterQuest');
 dojo.require('dijit._Widget');
