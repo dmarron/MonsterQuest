@@ -1,5 +1,5 @@
 /**
-* Monster Quest - a typing RPG where you type words to slay monsters and level up.  Programmed by David Marron.
+* Monster Quest - an RPG where you type words to slay monsters and level up.  Programmed by David Marron.
  */
 dojo.provide('myapp.MonsterQuest');
 dojo.require('dijit._Widget');
@@ -42,6 +42,8 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		this.soundEffects = [];
 		this.music = [];
 		this.monsterMessages = [];
+		this.questMessages = [];
+		this.areaMessages = [];
 		this.recordedSpells = [];
 		this.recordedWords = [];
 		this.duplicateWords = [];
@@ -76,7 +78,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		this.pressedShift = false;
 		this.level = 1;
 		this.minCombatLevel = 10;
-		this.combatLevel = 100;
+		this.combatLevel = 1000;
 		this.minMagicLevel = 10;
 		this.magicLevel = 10;
 		this.maxHealth = 80 + 2*this.combatLevel;
@@ -96,28 +98,67 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		this.gold = 0;
 		this.trainingGold = 100;
 		this.questLevel = 0;
+		this.numQuests = 1;
+		this.acceptedQuest = false;
+		this.itemsNeeded = 0;
 		this.knownSpells = ['LIST','DART'];
 		this.knownAreas = [];
+		this.allAreas = [];
 		this.totalSpells = 1;
 		this.possibleSpells = [];
-		this.monsters = [];
 		this.currentWords = [];
 		this.currentWord = 'undefined';
+		this.currentArea = {
+			name: 'The Unknown',
+			monsters: []
+		};
     },
 	loadMonsterWords: function(data) {
 		dataSplit = data.split('\n');
 		for (i = 0; i < dataSplit.length; i++) {
-			//remove all whitespace
-			dataSplit[i] = dataSplit[i].split(' ').join('');
-			dataSplit[i] = dataSplit[i].replace(/[\r\n]+/g, "");
-			if (dataSplit[i].indexOf(':') != -1) {
+			//if there is a { or }, that defines an area
+			//otherwise, that defines a monster and its words
+			if (dataSplit[i].indexOf("{") != -1) {
+				dataSplit[i] = dataSplit[i].replace(" {","{");
+				//this.allAreas.push(dataSplit[i].split("{")[0]);
+				var area = {
+					name: 'The Unknown',
+					monsters: []
+				}
+				area.name = dataSplit[i].split("{")[0];
+				if (area.name.length == 0 || area.name == ' ') {
+					area.name = "The Unknown";
+				}
+				this.currentArea = area;
+				this.allAreas.push(area);
+			} else if (dataSplit[i].indexOf("}") != -1) {
+				this.currentArea = {
+					name: 'The Unknown',
+					monsters: []
+				};
+			} else {
 				var monster = {
 					name: "Undefined",
 					words: []
 				}
-				monster.name = dataSplit[i].split(':')[0];
-				monster.words = dataSplit[i].split(':')[1].split(',');
-				this.monsters.push(monster);
+				//if there is no name given, call the monster "Random Monster"
+				if (dataSplit[i].indexOf(':') == -1) {
+					monster.name = "Random Monster";
+				} else {
+					monster.name = dataSplit[i].split(':')[0];
+					if (monster.name.length == 0 || monster.name == ' ') {
+						monster.name = "Random Monster";
+					}
+				}
+				//remove all whitespace
+				dataSplit[i] = dataSplit[i].split(' ').join('');
+				dataSplit[i] = dataSplit[i].replace(/[\r\n]+/g, "");
+				if (dataSplit[i].indexOf(':') == -1) {
+					monster.words = dataSplit[i].split(',');
+				} else {
+					monster.words = dataSplit[i].split(':')[1].split(',');
+				}
+				this.currentArea.monsters.push(monster);
 			}
 		}
 	},
@@ -162,7 +203,12 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 						this.tutorialMessages[7].play();
 					}
 				} else if (this.area == 'town') {
-				
+					if (this.questLevel > 0) {
+						this.currentlyTalking = false;
+						this.recordedMessages[31].volume = 0;
+						this.questMessages[this.questLevel-1].volume = 0;
+						this.leaveTown();
+					}
 				} else if (this.area == 'intro') {
 					this.recordedMessages[0].volume = 0;
 					this.recordedMessages[1].volume = 0;
@@ -220,7 +266,10 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 				} else if (this.area == 'training') {
 					this.tutorialMessages[5].volume = 0;
 					this.tutorialMessages[7].volume = 0;
-					this.combat('Training Dummy',5,75,5,0);
+					this.currentArea = this.allAreas[1];
+					this.combat(this.currentArea.name,5,75,5,0);
+				} else if (this.area == 'outside') {
+					this.combat(this.currentArea.name,30,125,10,20);
 				}
 			} else if (e.keyCode == 37) {
 				//left arrow pressed - player health & mana information
@@ -591,8 +640,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 						this.tutorialMessages[4].volume = 0;
 						this.tutorialMessages[5].volume = 0;
 						this.audioQueue = [];
-						this.recordedMessages[30].volume = 1;
-						this.recordedMessages[30].play();
+						this.playQuest();
 					} else if (String.fromCharCode(e.keyCode) == 'T') {
 						this.tutorialMessages[4].volume = 0;
 						this.enterTraining();
@@ -607,10 +655,8 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 					if (String.fromCharCode(e.keyCode) == 'Q') {
 						this.tutorialMessages[4].volume = 0;
 						this.tutorialMessages[5].volume = 0;
-						this.tutorialMessages[7].volume = 0;
 						this.audioQueue = [];
-						this.recordedMessages[30].volume = 1;
-						this.recordedMessages[30].play();
+						this.playQuest();
 					} else if (String.fromCharCode(e.keyCode) == 'T') {
 						this.tutorialMessages[5].volume = 0;
 						this.tutorialMessages[7].volume = 0;
@@ -704,6 +750,31 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 			}
 		}
 	},
+	playQuest: function(e) {
+		if (!this.acceptedQuest) {
+			if (this.questLevel < this.numQuests) {
+				this.currentlyTalking = true;
+				this.onceConnect(this.questMessages[this.questLevel],'ended',this,'acceptQuest');
+				this.questMessages[this.questLevel].play();
+				if (this.questLevel == 0) {
+					this.itemsNeeded = 3;
+					this.knownAreas.push(this.allAreas[this.questLevel+2]);
+				}
+				this.questLevel++;
+			} else {
+				this.recordedMessages[30].volume = 1;
+				this.recordedMessages[30].play();
+			}
+		} else {
+			//say what your current quest is
+		}
+	},
+	acceptQuest: function(page) {
+		this.acceptedQuest = true;
+		//say press the space bar to leave town and go fight monsters
+		this.recordedMessages[31].volume = 1;
+		this.recordedMessages[31].play();
+	},
 	tutorial: function(page) {
 		dojo.empty(this.generateDiv);
 		var canvas = dojo.doc.createElement('canvas');
@@ -752,24 +823,44 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		}*/
 		this.currentlyTalking = false;
 	},
-	combat: function(name,monAttack,monHealth,monExp,monGold) {
+	combat: function(givenArea,monAttack,monHealth,monExp,monGold) {
 		this.audioQueue = [];
 		this.currentlyTalking = true;
 		this.inCombat = true;
-		this.monsterName = name;
 		this.monsterMaxHealth = monHealth;
 		this.monsterAttack = monAttack;
 		this.monsterHealth = this.monsterMaxHealth;
 		this.monsterExperience = monExp;
 		this.monsterGold = monGold;
-		this.drawCombat();
-		for (i = 0; i < this.monsters.length; i++) {
-			if (this.monsters[i].name.toLowerCase() == this.monsterName.split(' ').join('').toLowerCase()) {
-				this.currentWords = this.monsters[i].words;
-				this.monsterIndex = i;
-				i = this.monsters.length;
+		this.currentArea = {
+			name: 'The Unknown',
+			monsters: []
+		};
+		for (i = 0; i < this.allAreas.length; i++) {
+			if (this.allAreas[i].name.split(' ').join('').toLowerCase() == givenArea.split(' ').join('').toLowerCase()) {
+				this.currentArea = this.allAreas[i];
+				i = this.allAreas.length;
 			}
 		}
+		console.log("Area: " + this.currentArea.name);
+		if (this.currentArea.monsters.length == 0) {
+			this.monsterName = "Random Monster";
+		} else if (this.currentArea.monsters.length == 1) {
+			this.monsterName = this.currentArea.monsters[0].name;
+			this.currentWords = this.currentArea.monsters[0].words;
+		} else {
+			//select which monster to fight
+			this.monsterName = this.currentArea.monsters[0].name;
+			this.currentWords = this.currentArea.monsters[0].words;
+		}
+		this.drawCombat();
+		/*for (i = 0; i < this.currentArea.monsters.length; i++) {
+			if (this.currentArea.monsters[i].name.toLowerCase() == this.monsterName.split(' ').join('').toLowerCase()) {
+				this.currentWords = this.currentArea.monsters[i].words;
+				this.monsterIndex = i;
+				i = this.currentArea.monsters.length;
+			}
+		}*/
 		if (this.currentWords.length == 0) {
 			this.currentWords.push('undefined');
 		}
@@ -791,8 +882,19 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		this.music[0].volume = 0.15;
 		this.onceConnect(this.music[0], 'ended', this, 'musicLoop');
 		this.music[0].play();
-		this.onceConnect(this.monsterMessages[this.monsterIndex], 'ended', this, 'combatLoop');
-		setTimeout(dojo.hitch(this,function(){this.monsterMessages[this.monsterIndex].play();}),500);
+		//this.onceConnect(this.monsterMessages[this.monsterIndex], 'ended', this, 'combatLoop');
+		
+		var tempMonster = dojo.doc.createElement('audio');
+		tempMonster.setAttribute('src', 'sounds/monsters/' + this.monsterName.split(' ').join('').toLowerCase() + this._ext);
+		console.log("Monster: " + this.monsterName);
+		this.onceConnect(tempMonster,'ended',this, 'combatLoop');
+		this.onceConnect(tempMonster,'error',this,'testFunc');
+		
+		//setTimeout(dojo.hitch(this,function(){this.monsterMessages[this.monsterIndex].play();}),500);
+		setTimeout(dojo.hitch(this,function(){tempMonster.play();}),500);
+	},
+	testFunc: function(e) {
+		console.log('test audio');
 	},
 	combatLoop: function(e) {
 		//regenerate health and mana
@@ -1176,6 +1278,31 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		ctx.font = "20pt Bookman Old Style";
 		ctx.fillText("Training Ground.",10,30);
 	},
+	leaveTown: function(e) {
+		this.area = 'outside';
+		this.currentArea = this.knownAreas[this.knownAreas.length-1];
+		dojo.empty(this.generateDiv);
+		canvas = dojo.doc.createElement('canvas');
+		canvas.setAttribute('width',800); 
+		canvas.setAttribute('height',800); 
+		dojo.place(canvas, this.generateDiv);
+		var ctx = canvas.getContext("2d");
+		ctx.lineWidth = 1;
+		ctx.fillStyle = "#fff";
+		ctx.fillRect(0,0,canvas.width,canvas.height);
+		ctx.fillStyle = "#000";
+		ctx.font = "20pt Bookman Old Style";
+		ctx.fillText("Outside of Town",10,30);
+		this.onceConnect(this.recordedMessages[32],'ended',this,'chooseArea');
+		this.recordedMessages[32].volume = 1;
+		this.recordedMessages[32].play();
+	},
+	chooseArea: function(e) {
+		if (!this.inCombat) {
+			this.areaMessages[0].volume = 1;
+			this.areaMessages[0].play();
+		}
+	},
 	readHealthAndMana: function() {
 		this.audioQueue = [];
 		this.audioQueue.push(this.recordedMessages[8]);
@@ -1325,7 +1452,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		ctx.arc(35,81+30*this.currentRow,5,0,2*Math.PI,true);
 		ctx.fill();
 	},
-	initialize: function(event) {
+	initialize: function(event) {		
 		var node = dojo.create('audio');
         if (node.canPlayType('audio/ogg') && node.canPlayType('audio/ogg') != 'no') {
             this._ext = '.ogg';
@@ -1336,6 +1463,8 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		this.recordedNumbers = [];
 		this.recordedMessages = [];
 		this.tutorialMessages = [];
+		this.questMessages = [];
+		this.areaMessages = [];
 		this.recordedSpells = [];
 		this.soundEffects = [];
 		this.music = [];
@@ -1476,6 +1605,14 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		var noquests = dojo.doc.createElement('audio');
 		noquests.setAttribute('src', 'sounds/quests/NoAvailableQuests' + this._ext);
 		this.recordedMessages.push(noquests);
+		// (31) Say "Press space to leave town and go fight monsters
+		var leavetown = dojo.doc.createElement('audio');
+		leavetown.setAttribute('src', 'sounds/general/PressSpaceToLeaveTown' + this._ext);
+		this.recordedMessages.push(leavetown);
+		// (32) Say "You are outside of town
+		var outside = dojo.doc.createElement('audio');
+		outside.setAttribute('src', 'sounds/areas/OutsideOfTown' + this._ext);
+		this.recordedMessages.push(outside);
 		
 		//Sound effects
 		//(0) "Ding" sound for player attack
@@ -1505,6 +1642,24 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 			var monsteri = dojo.doc.createElement('audio');
 			monsteri.setAttribute('src', 'sounds/monsters/monster' + i + this._ext);
 			this.monsterMessages.push(monsteri);
+		}
+		
+		//Quest messages
+		//(0) You walk around town, asking the townspeople if they have any quests available.  Eventually, you find one.
+		// I know that rabbit feet make me lucky, but I want to be super lucky!  Three times as lucky as normal, in fact.
+		// Bring me three rabbit feet, and I will reward you.  Rabbits like to hang out in the wheat field just outside of town.
+		for (var i = 0; i <= this.numQuests-1; i++) {
+			var questi = dojo.doc.createElement('audio');
+			questi.setAttribute('src', 'sounds/quests/quest' + i + this._ext);
+			this.questMessages.push(questi);
+		}
+		
+		//Area messages
+		//(0) Wheat Fields
+		for (var i = 0; i <= 0; i++) {
+			var areai = dojo.doc.createElement('audio');
+			areai.setAttribute('src', 'sounds/areas/area' + i + this._ext);
+			this.areaMessages.push(areai);
 		}
 		
 		//Spells
