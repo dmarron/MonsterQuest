@@ -1,2 +1,11 @@
+Tutorial {
 Tutorial: tutorial,learning,introduction,practice,beginning
+}
+Training {
 Training Dummy: flask, flag, dash, glass, has, gas, shall, slash, asdfg, lkjh, gdfha
+}
+The Wheat Fields {
+Cute Rabbit: rabbit,bunny,adorable,bounce,white,grenade
+Stalk of Wheat: stalk,wheat,field
+Bird: bird, flight, wings
+}
