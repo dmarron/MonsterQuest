@@ -201,6 +201,9 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 						this.enterTraining();
 						this.tutorialMessages[7].volume = 1;
 						this.tutorialMessages[7].play();
+					} else {
+						//say "press space to adventure again"
+						this.leaveTown();
 					}
 				} else if (this.area == 'town') {
 					if (this.questLevel > 0) {
@@ -772,8 +775,10 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 	acceptQuest: function(page) {
 		this.acceptedQuest = true;
 		//say press the space bar to leave town and go fight monsters
-		this.recordedMessages[31].volume = 1;
-		this.recordedMessages[31].play();
+		if (this.area == 'town') {
+			this.recordedMessages[31].volume = 1;
+			this.recordedMessages[31].play();
+		}
 	},
 	tutorial: function(page) {
 		dojo.empty(this.generateDiv);
@@ -850,8 +855,9 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 			this.currentWords = this.currentArea.monsters[0].words;
 		} else {
 			//select which monster to fight
-			this.monsterName = this.currentArea.monsters[0].name;
-			this.currentWords = this.currentArea.monsters[0].words;
+			i = Math.floor(Math.random()*this.currentArea.monsters.length);
+			this.monsterName = this.currentArea.monsters[i].name;
+			this.currentWords = this.currentArea.monsters[i].words;
 		}
 		this.drawCombat();
 		/*for (i = 0; i < this.currentArea.monsters.length; i++) {
@@ -895,6 +901,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 	},
 	testFunc: function(e) {
 		console.log('test audio');
+		this.combatLoop();
 	},
 	combatLoop: function(e) {
 		//regenerate health and mana
@@ -1294,6 +1301,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		ctx.font = "20pt Bookman Old Style";
 		ctx.fillText("Outside of Town",10,30);
 		this.onceConnect(this.recordedMessages[32],'ended',this,'chooseArea');
+		this.recordedMessages[31].volume = 0;
 		this.recordedMessages[32].volume = 1;
 		this.recordedMessages[32].play();
 	},
