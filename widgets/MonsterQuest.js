@@ -78,9 +78,9 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		this.pressedShift = false;
 		this.level = 1;
 		this.minCombatLevel = 10;
-		this.combatLevel = 1000;
+		this.combatLevel = 10;
 		this.minMagicLevel = 10;
-		this.magicLevel = 10;
+		this.magicLevel = 100;
 		this.maxHealth = 80 + 2*this.combatLevel;
 		this.currentHealth = 80 + 2*this.combatLevel;
 		this.maxMana = 80 + 2*this.magicLevel;
