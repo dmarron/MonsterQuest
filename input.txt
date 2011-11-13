@@ -1,11 +1,37 @@
 Tutorial {
-Tutorial: tutorial,learning,introduction,practice,beginning
+Tutorial: easy(sad,dad,fad,lad,had,sag,gag,lag,gas,has)
+normal(monster,quest,attack,defend,magic,spell,heroic,beginning,victory)
+difficult(tutorial,introduction,practice,learning,beginning,difficult,frenetic,retaliation,punishment,incredible)
+insane(tutorial,introduction,practice,learning,beginning,difficult,impossible,disastrous,retaliation,frustrating)
 }
 Training {
-Training Dummy: flask, flag, dash, glass, has, gas, shall, slash, asdfg, lkjh, gdfha
+Training Dummy: flask,flag,dash,glass,shall,slash,asdfg,lkjh,gdfha,dsklh,hajj
 }
 The Wheat Fields {
-Cute Rabbit: rabbit,bunny,adorable,bounce,white,grenade
-Stalk of Wheat: stalk,wheat,field
-Bird: bird, flight, wings
+Cute Rabbit: easy(rabbit,bunny,cute,white,nice,hop,jump,skip,grass,late,watch,fur,ears,long,leg,wild,hole,gnaw,limb,neo,fang,blue,feast,tail,doe,hare,pelt,late,fox,nose,skin,stew,buck,kick,bugs)
+normal(rabbit,bunny,adorable,bounce,white,grenade,grass,field,watch,tardy,furry,whisker,carrot,lucky,burrow,pellet,follow,matrix,python,trinity,boxing,feast,patch,fluffy,habitat,kitten,warren,badger,hutch,snare,easter)
+difficult(adorable,grenade,whisker,matrix,bouncing,grassland,digestion,herbivore,domestic,delicious,environment,trickster,population,excitement,explosion,cottontail,massacre,gluttonous,starvation)
+insane(adorable,grassland,digestion,delicious,environment,overpopulation,excitement,herbivore,wonderland,wristwatch,reproductive,cottontail,religious,ecological,gluttonous,effervescent,explosion,starvation,pharmaceutical)
+Stalk of Wheat: easy(wheat,still,tall,farm,wind,land,bake,seed,loaf,mill,germ,crop,corn,wild,field,bread,grain,bran)
+normal(wheat,still,field,grain,bread,useless,grind,pliable,starch,rotation,yield,harvest,gluten,organic,gather,scarecrow,healthy)
+difficult(pliable,placid,bizarre,identical,flexible,fermentation,pollination,harvest,surplus,standstill,organic,scarecrow,pesticide)
+insane(standstill,fermentation,pollination,carbohydrates,photosynthesis,cytoplasm,taxonomy,pesticide,ecological,harrowing,ambulatory)
+Bird: easy(bird,flight,wings,peck,beak,worms,early,eagle,nest,egg,robin,wind,gust,song,owl,dove,feed)
+normal(bird,flight,wings,feather,worms,early,eagle,migrate,swallow,robin,chick,flock,ostrich,avian,flamingo,plumage,roost,pidgeon,branch)
+difficult(migration,blackbird,endothermic,nonmammal,evolution,predatory,extinction,mockingbird,partridge,flamingo,pidgeon,nevermore)
+insane(migration,blackbird,endothermic,nonmammal,evolution,taxonomy,extinction,hummingbird,phylogenetic,pterodactyl,classification)
+Boss(Combine Harvester): easy(wheat,grinder,sickle,boss,rampant,combine,machine,swath,harvest,tank,grain,rotation,lift,blades)
+normal(wheat,swath,machine,harvest,grinder,sickle,rampant,combine,thresher,millstone,animated,eradicate,gasoline,mechanical,cylinder,debris,blades)
+difficult(harvester,thresher,millstone,perplexing,animated,rampant,eradicate,cylinder,gasoline,mechanical,destruction,winnowing,hydraulic,transmission,hydrostatic,technology)
+insane(thresher,destruction,eradicate,hydraulic,mechanical,transmission,hydrostatic,perplexing,agricultural,destruction,electricity,technology)
+}
+The Creepy Cave {
+Bat: bat,wings,flight,echolocation,mosquito,vampire,fangs,attic,dark,night,hypnotize
+Stalactite: stalactite,stalagmite,drip,water,sharp,stab
+Goblin: goblin,filthy,dirty,fish,fire,appalling,disgusting
+}
+Secret {
+Difficult Demon: difficult,impossible,frustrating,inconceivable,torturous,preposterous,incredible,
+ludicrous,frenetic,precipitate,palpitation,terrifying,disastrous,horrendous,complicated,
+exacerbate,frightful,appalling,retaliation,punishment,catastrophic,destruction,indescribable
 }
