@@ -530,7 +530,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 					this.recordedMessages[4].volume = 0;
 					this.recordedMessages[5].volume = 0;
 					if (this.currentRow == 1) {
-						//easy difficult
+						//easy difficulty
 						this.difficulty = this.currentRow;
 						this.area = 'tutorial';
 						this.tutorial(0);
@@ -601,9 +601,9 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 					} else if (this.areaSelected == 1) {
 						this.combat(this.currentArea.name,50,300,30,50);
 					} else if (this.areaSelected == 2) {
-						this.combat(this.currentArea.name,60,350,50,80);
+						this.combat(this.currentArea.name,75,350,50,80);
 					} else if (this.areaSelected == 3) {
-						this.combat(this.currentArea.name,75,500,100,100);
+						this.combat(this.currentArea.name,100,500,100,100);
 					} else {
 						this.combat(this.currentArea.name,45+this.level*5,100+this.level*40,100,100);
 					}
@@ -1103,7 +1103,18 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 								ctx.fillStyle = "red";
 								ctx.font = "25px Courier";
 								ctx.fillText(this.typedLetters[this.typedLetters.length-1],10+20*(this.typedLetters.length-1),180);
-								if (this.missed == 1 || this.combatMode == 'defend') {
+								if (this.typedLetters.length <= 1) {
+									//don't "miss" if it was the first letter of the word that was wrong
+									//say "try again"
+									this.typeWord = false;
+									this.currentlyTalking = true;
+									this.onceConnect(this.recordedMessages[33],'ended',this,'tryAgain');
+									if (!this.mute) {
+										this.recordedMessages[33].play();
+									} else {
+										this.tryAgain();
+									}
+								} else if (this.missed == 1 || this.combatMode == 'defend') {
 									setTimeout(dojo.hitch(this,function(){
 										//miss
 										this.stopTimer = true;
@@ -1131,7 +1142,9 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 									this.typeWord = false;
 									this.typedLetters = [];
 								} else {
-									this.missed = 1;
+									if (this.typedLetters.length > 1) {
+										this.missed = 1;
+									}
 									//say "try again"
 									this.typeWord = false;
 									this.currentlyTalking = true;
@@ -2129,8 +2142,9 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 				ctx.fillText("in the Wheat Fields.",10,90);
 				ctx.fillText("Press space to leave town and go fight monsters.",10,120);
 			} else if (this.questLevel == 3) {
-				ctx.fillText("Your quest is to collect 6 goblin fingers from the Creepy Cave.",10,60);
-				ctx.fillText("Press space to leave town and go fight monsters.",10,90);
+				ctx.fillText("Your quest is to collect 6 goblin fingers",10,60);
+				ctx.fillText("from the Creepy Cave.",10,90);
+				ctx.fillText("Press space to leave town and go fight monsters.",10,120);
 			} else if (this.questLevel == 4) {
 				ctx.fillText("Your quest is to rescue the miners from the cave in",10,60);
 				ctx.fillText("in the Creepy Cave.",10,90);
@@ -2631,7 +2645,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		} else if (this.combatMode == 'fire') {
 			this.damage = Math.round(((6/(/*this.difficulty*/2+4))*(this.magicLevel*1.5)*(this.power/75 + 1)));
 			//fireball blast sound
-			if (this.power >= 50) {
+			if (this.power >= 40) {
 				this.onFire = 4;
 			}
 			this.onceConnect(this.recordedSpells[5], 'ended', this, 'readDamage');
@@ -2639,9 +2653,9 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 				this.recordedSpells[5].play();
 			}
 		} else if (this.combatMode == 'cold') {
-			this.damage = Math.round(((6/(/*this.difficulty*/2+4))*(this.magicLevel)*(this.power/75 + 1)));
+			this.damage = Math.round(((6/(/*this.difficulty*/2+4))*(this.magicLevel*1.5)*(this.power/75 + 1)));
 			//cold blast sound
-			if (this.power >= 50) {
+			if (this.power >= 40) {
 				this.frozen = 2;
 				if (this.onFire > 1) {
 					//if you freeze a monster, it is no longer on fire
@@ -2953,8 +2967,8 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 			ctx.fillText("Defeat",10,0);
 			ctx.fillText("You were defeated!  Press space to return to town.",10,30);
 			if (this.gold >= this.trainingGold) {
-				ctx.fillText("You can visit the personal trainer in town by pressing T",10,60);
-				ctx.fillText("if you want to become stronger.",10,90);
+				ctx.fillText("Hint: You can visit the personal trainer in town by",10,60);
+				ctx.fillText("pressing T if you want to become stronger.",10,90);
 			}
 			this.recordedMessages[42].volume = 1;
 			if (!this.mute) {
@@ -3289,40 +3303,58 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 	},
 	startPowerTimer: function(e) {
 		var t = new dojox.timing.Timer();
-		t.setInterval(7-this.difficulty);
+		t.setInterval(14-this.difficulty);
 		t.onTick = dojo.hitch(this,function() {
 			if (this.stopTimer) {
 				t.stop();
 			} else {
 				if (!this.currentlyTalking) {
 					if (this.typedLetters.length == 0) {
-						this.power -= 0.05;
-						this.timerCounter += 50;
+						//this.power -= 0.05*2;
+						//this.timerCounter += 100;
 					} else {
 						if (this.power > 90) {
-							this.power -= (0.15+0.025*this.difficulty);
+							//this.power -= (0.15+0.025*this.difficulty)*2;
+							this.power -= (0.1+0.075*this.difficulty)*2;
 							this.timerCounter += 200;
 						} else if (this.power > 75) {
-							this.power -= (0.125+0.025*this.difficulty);
+							//this.power -= (0.125+0.025*this.difficulty)*2;
+							this.power -= (0.12+0.075*this.difficulty)*2;
 							this.timerCounter += 175;
 						} else if (this.power > 50) {
-							this.power -= (0.1+0.025*this.difficulty);
+							//this.power -= (0.1+0.025*this.difficulty)*2;
+							this.power -= (0.05+0.075*this.difficulty)*2;
 							this.timerCounter += 150;
 						} else if (this.power > 25) {
-							this.power -= (0.075+0.025*this.difficulty);
+							//this.power -= (0.075+0.025*this.difficulty)*2;
+							this.power -= (0.025+0.075*this.difficulty)*2;
 							this.timerCounter += 125;
 						} else if (this.power > 10) {
-							this.power -= (0.05+0.025*this.difficulty);
-							this.timerCounter += 100;
+							//this.power -= (0.05+0.025*this.difficulty)*2;
+							this.power -= (0+0.075*this.difficulty)*2;
+							//this.timerCounter += 100;
+							this.timerCounter += 125;
 						} else {
-							this.power -= (0+0.025*this.difficulty);
-							this.timerCounter += 50;
+							//this.power -= (0+0.025*this.difficulty)*2;
+							this.power -= (0.025+0.075*(this.difficulty-1))*2;
+							//this.timerCounter += 50;
+							this.timerCounter += 100;
 						}
 						if (this.difficulty == 4) {
 							//make insane difficulty extra hard
-							this.power -= 0.025;
+							this.power -= 0.025*2;
 						} else if (this.difficulty == 3) {
-							this.power -= 0.02;
+							this.power -= 0.025*2;
+						} else if (this.difficulty <= 2) {
+							//make easy and normal slightly easier
+							//at the start of the game
+							if (this.level < 5) {
+								this.power += (0.015*this.difficulty)*2;
+							} else if (this.level < 10) {
+								this.power += (0.01*this.difficulty)*2;
+							} else if (this.level < 15) {
+								this.power += (0.005*this.difficulty)*2;
+							}
 						}
 					}
 					if (this.timerCounter >= 250) {
@@ -3753,6 +3785,26 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		ctx.fillText("Your magic skill level is: " + this.magicLevel,10,180);
 		ctx.fillText("Press R to redistribute points in combat and magic",10,210);
 		ctx.fillText("Press B to go back to town",10,240);
+		ctx.fillText("Combat Stats",10,300);
+		ctx.fillText("Max Health: " + this.maxHealth,10,330);
+		ctx.fillText("Health Regeneration: " + Math.round((this.combatLevel/5)*(0.8+this.level/5)),10,360);
+		ctx.fillText("Normal Attack Damage: " + Math.round(this.combatLevel*1.5 + 5) + "-" + Math.round((this.combatLevel*1.5 + 5)*(100/75 + 1)),10,390);
+		ctx.fillText("Magic Stats",10,420);
+		ctx.fillText("Max Mana: " + this.maxMana,10,450);
+		ctx.fillText("Mana Regeneration: " + Math.round((this.magicLevel/5)*(0.8+this.level/5)),10,480);
+		ctx.fillText("Magic Dart Damage: " + Math.round(this.magicLevel + 5) + "-" + Math.round((this.magicLevel + 5)*(100/40 + 1)),10,510);
+		if (this.knownSpells.length > 2) {
+			ctx.fillText("Heal health gain: " + Math.round(this.maxHealth/4 + (this.combatLevel/4 + this.magicLevel/4 + 5)) + "-" + Math.round(this.maxHealth/4 + (this.combatLevel/4 + this.magicLevel/4 + 5)*(100/75 + 1)),10,540);
+		}
+		if (this.knownSpells.length > 3) {
+			ctx.fillText("Fireball Damage: " + Math.round(this.magicLevel*1.5) + "-" + Math.round((this.magicLevel*1.5)*(100/75 + 1)) + " + ~20% monster max health",10,570);
+		}
+		if (this.knownSpells.length > 4) {
+			ctx.fillText("Cold Blast Damage: " + Math.round(this.magicLevel*1.5) + "-" + Math.round((this.magicLevel*1.5)*(100/75 + 1)) + " + monster damage reduction",10,600);
+		}
+		if (this.knownSpells.length > 5) {
+			ctx.fillText("Magic Beam Damage: " + Math.round(this.magicLevel*1.5 + 40) + "-" + Math.round((this.magicLevel*1.5 + 40)*(100/40 + 1)),10,630);
+		}
 		this.audioQueue.push(this.townMessages[13]);
 		this.readNumber(this.combatLevel);
 		this.audioQueue.push(this.townMessages[14]);
@@ -3769,6 +3821,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 			this.freePoints = this.combatLevel+this.magicLevel-this.minCombatLevel-this.minMagicLevel;
 			this.combatLevel = this.minCombatLevel;
 			this.magicLevel = this.minMagicLevel;
+			this.updateStats();
 			this.disconnectAudio();
 			this.audioQueue.push(this.townMessages[17]);
 			this.readNumber(this.freePoints);
@@ -3801,8 +3854,28 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		}
 		ctx.fillText("Your combat skill level is: " + this.combatLevel,10,150);
 		ctx.fillText("Your magic skill level is: " + this.magicLevel,10,180);
-		ctx.fillText("Press space to randomly distribute the remaining",10,240);
-		ctx.fillText("points and to go back to town",10,270);
+		ctx.fillText("Press space to randomly distribute the remaining",10,210);
+		ctx.fillText("points and to go back to town",10,240);
+		ctx.fillText("Combat Stats",10,300);
+		ctx.fillText("Max Health: " + this.maxHealth,10,330);
+		ctx.fillText("Health Regeneration: " + Math.round((this.combatLevel/5)*(0.8+this.level/5)),10,360);
+		ctx.fillText("Normal Attack Damage: " + Math.round(this.combatLevel*1.5 + 5) + "-" + Math.round((this.combatLevel*1.5 + 5)*(100/75 + 1)),10,390);
+		ctx.fillText("Magic Stats",10,420);
+		ctx.fillText("Max Mana: " + this.maxMana,10,450);
+		ctx.fillText("Mana Regeneration: " + Math.round((this.magicLevel/5)*(0.8+this.level/5)),10,480);
+		ctx.fillText("Magic Dart Damage: " + Math.round(this.magicLevel + 5) + "-" + Math.round((this.magicLevel + 5)*(100/40 + 1)),10,510);
+		if (this.knownSpells.length > 2) {
+			ctx.fillText("Heal health gain: " + Math.round(this.maxHealth/4 + (this.combatLevel/4 + this.magicLevel/4 + 5)) + "-" + Math.round(this.maxHealth/4 + (this.combatLevel/4 + this.magicLevel/4 + 5)*(100/75 + 1)),10,540);
+		}
+		if (this.knownSpells.length > 3) {
+			ctx.fillText("Fireball Damage: " + Math.round(this.magicLevel*1.5) + "-" + Math.round((this.magicLevel*1.5)*(100/75 + 1)) + " + ~20% monster max health",10,570);
+		}
+		if (this.knownSpells.length > 4) {
+			ctx.fillText("Cold Blast Damage: " + Math.round(this.magicLevel*1.5) + "-" + Math.round((this.magicLevel*1.5)*(100/75 + 1)) + " + monster damage reduction",10,600);
+		}
+		if (this.knownSpells.length > 5) {
+			ctx.fillText("Magic Beam Damage: " + Math.round(this.magicLevel*1.5 + 40) + "-" + Math.round((this.magicLevel*1.5 + 40)*(100/40 + 1)),10,630);
+		}
 	},
 	showBestiary: function(e) {
 		var ctx = canvas.getContext("2d");
@@ -4455,13 +4528,13 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		var fire = dojo.doc.createElement('audio');
 		fire.setAttribute('src','sounds/spells/fire' + this._ext);
 		//fire will burn the enemy, doing damage over time
-		//if power > 50
+		//if power > 40
 		this.recordedSpells.push(fire);
 		var firee = dojo.doc.createElement('audio');
 		firee.setAttribute('src','sounds/spells/fireeffect' + this._ext);
 		this.recordedSpells.push(firee);
 		//cold will reduce the enemy's next attack by 75%
-		//but will also end burning (if power > 50)
+		//but will also end burning (if power > 40)
 		var cold = dojo.doc.createElement('audio');
 		cold.setAttribute('src','sounds/spells/cold' + this._ext);
 		this.recordedSpells.push(cold);
