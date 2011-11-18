@@ -5,13 +5,13 @@ difficult(tutorial,introduction,practice,learning,beginning,difficult,frenetic,r
 insane(tutorial,introduction,practice,learning,beginning,difficult,impossible,disastrous,retaliation,frustrating)
 }
 Training {
-Training Dummy: flask,flag,dash,glass,shall,slash,asdfg,lkjh,gdfha,dsklh,hajj
+Training Dummy: flask,flag,dash,glass,shall,slash,shade,pretty,future,share,potter,water,putty
 }
 The Wheat Fields {
 Cute Rabbit: easy(rabbit,bunny,cute,white,nice,hop,jump,skip,grass,late,watch,fur,ears,long,leg,wild,hole,gnaw,limb,neo,fang,blue,feast,tail,doe,hare,pelt,late,nose,skin,stew,buck,kick,bugs)
 normal(rabbit,bunny,adorable,bounce,white,grenade,grass,field,watch,tardy,furry,whisker,carrot,lucky,burrow,pellet,follow,matrix,python,trinity,boxing,patch,habitat,kitten,warren,badger,hutch,snare,easter)
 difficult(adorable,grenade,whisker,matrix,bouncing,grassland,digestion,herbivore,domestic,delicious,environment,trickster,population,excitement,explosion,cottontail,massacre,gluttonous,starvation)
-insane(adorable,grassland,digestion,delicious,environment,overpopulation,excitement,herbivore,wonderland,wristwatch,reproductive,cottontail,religious,ecological,gluttonous,effervescent,explosion,starvation,pharmaceutical,therapeutic)
+insane(adorable,grassland,digestion,delicious,environment,overpopulation,excitement,herbivore,wonderland,wristwatch,reproductive,cottontail,religious,ecological,gluttonous,effervescent,explosion,starvation,therapeutic)
 Stalk of Wheat: easy(wheat,still,tall,farm,wind,land,bake,seed,loaf,mill,germ,crop,corn,wild,field,grain,bran)
 normal(wheat,still,field,grain,useless,grind,pliable,starch,rotation,yield,harvest,gluten,organic,gather,scarecrow,healthy,narrow)
 difficult(pliable,placid,bizarre,identical,flexible,fermentation,pollination,harvest,surplus,standstill,organic,scarecrow,pesticide)
@@ -23,12 +23,12 @@ insane(migration,blackbird,endothermic,nonmammal,evolution,taxonomy,extinction,h
 Boss(Combine Harvester): easy(wheat,grinder,sickle,boss,rampant,combine,machine,swath,harvest,tank,grain,rotation,lift,blade,noisy)
 normal(wheat,swath,machine,harvest,grinder,sickle,rampant,combine,thresher,millstone,animated,eradicate,gasoline,mechanical,cylinder,debris,blade)
 difficult(harvester,thresher,millstone,perplexing,animated,rampant,eradicate,cylinder,gasoline,mechanical,destruction,winnowing,hydraulic,transmission,hydrostatic,technology,malevolent)
-insane(thresher,destruction,eradicate,hydraulic,mechanical,transmission,hydrostatic,perplexing,agricultural,destruction,electricity,technology,malevolent)
+insane(thresher,destruction,eradicate,hydraulic,mechanical,transmission,hydrostatic,perplexing,agricultural,destruction,electricity,technology,malevolent,monstrosity)
 }
 The Creepy Cave {
 Bat: easy(bat,wings,fangs,attic,dark,sonar,furry,ears,cave,glide,fruit,claw,nectar,pollen,insect,vision,cute,tree,brown,black,range,blind,echo,feed)
 normal(flight,mosquito,vampire,insect,impale,blood,vessel,evening,darkness,mammal,parasite,membrane,rodent,vision,skeleton,ecology,movement,habitat,sensitive,twilight,hunting,daylight,precision,feeding,consume,disease)
-difficult(echolocation,mosquito,hypnotize,vampiric,insectivore,pollination,membrane,skeleton,fossilized,movement,localize,frequency,ultrasonic,emission,fluttering,sensitive,congregate,dominate,carnivorous,nocturnal,hibernation,opportunity)
+difficult(echolocation,mosquito,hypnotize,vampiric,insectivore,pollination,membrane,skeleton,fossilized,movement,localize,frequency,ultrasonic,emission,fluttering,sensitive,congregate,dominate,nocturnal,hibernation,opportunity)
 insane(echolocation,bloodsucking,hemoglobin,insectivore,pollination,fossilized,localize,continuous,frequency,ultrasonic,fluttering,congregation,carnivorous,possessive,nocturnal,distinguish,opportunistic,hibernation,witchcraft)
 Stalactite: easy(drip,water,sharp,stab,point,cool,years,cave,ice,drop,spike,touch,hang,dig,form,soda,grow,length,top,cone)
 normal(stalactite,geology,impale,formation,limestone,solution,calcium,reaction,growing,concrete,frozen,fragile,diameter,mineral,impressive,droplet,icicle,cavern,column,statue,crystal,deposit,elegant,erosion,vertical,hanging,ceiling,downward)
@@ -37,28 +37,37 @@ insane(stalactite,stalagmite,deposition,permanent,temperature,limestone,undocume
 Goblin: easy(goblin,dirty,fish,fire,evil,small,race,gross,tribe,green,gold,mine,cheat,trade,slimy,swarm,war,mean,crazy,short,ugly,rude)
 normal(goblin,annoying,filthy,summon,bargain,crafty,grudge,creature,tinker,greedy,arrogant,beast,sewer,scurry,creepy,fireball,toadlike,chaotic,commerce,cunning,mischief,pester,pathetic,pilfer,hideous,putrid,dagger,disease,unwashed,finger)
 difficult(hobgoblin,appalling,disgusting,humanoid,poisonous,mischievous,illiterate,grotesque,annoying,churlish,tenacious,reclusive,mercantile,noxious,villainous,betrayal,abomination,pathetic,eccentric,enigmatic,primitive,unpleasant,vandalism,underground)
-insane(mischievous,diminutive,illiterate,appalling,grotesque,deforestation,capitalistic,unpredictable,fabricated,preposterous,grotesque,disingenuous,villainous,argumentative,abomination,eccentric,contaminated,malodorous,underground,backstabbing)
+insane(mischievous,diminutive,illiterate,appalling,grotesque,deforestation,capitalistic,unpredictable,fabricated,preposterous,grotesque,disingenuous,villainous,argumentative,abomination,eccentric,contaminated,malodorous,underground,backstabbing,unscrupulous)
 Boss(Cave In):easy(rock,stone,cave,mine,pick,tunnel,drill,blast,danger,dust,rope,pound,trap,hunger,move,safe,light,heavy)
 normal(trapped,suffocate,insulation,boulder,mining,thunder,tunnel,support,hollow,ground,collapse,hungry,survival,unstable,rescue,copper,safety,dangerous,escape,debris,worker,release,drilling,physical,expensive,oxygen,dynamite,painful,rubble)
 difficult(suffocate,insulation,collapsing,dynamite,concession,extraction,instability,earthquake,inaccessible,pneumonia,investigation,ventilation,equipment,disaster,humidity,logistics,wreckage,oxygen,release,strengthen,avalanche)
-insane(subsidence,extraction,earthquake,inaccessible,ventilation,despairing,wreckage,disastrous,catastrophe,preparation,emergency,bedraggled,psychological,strengthen,nightmarish,avalanche,dilapidated,claustrophobic,complications,reconstruction)
+insane(subsidence,extraction,earthquake,inaccessible,ventilation,despairing,wreckage,disastrous,catastrophe,preparation,emergency,bedraggled,psychological,strengthen,nightmarish,avalanche,dilapidated,claustrophobic,complications,reconstruction,asphyxiate)
 }
 The Endless Ocean {
-Shark: shark,ocean,fin,swim,fish,skin,wetsuit,jaws,tuna,underwater,dolphin,saline,bite
-Patch of Seaweed: seaweed,patch,seawater
-Whirlpool: whirlpool,water,swirl,mermaid,co nsume
-Boss(Battleship):sink,battleship,ship,boat,submarine,missile,explosion
+Shark: easy(shark,ocean,fin,swim,fish,skin,jaws,tuna,bite,reef,white,deep,fluid,tiger,snout,nurse,blood,attack,body,tooth,fresh)
+normal(shark,ocean,wetsuit,underwater,dolphin,saline,predator,tissue,specimen,swimming,osmosis,digestion,stomach,devour,massacre,marine,solitary,harpoon,provoke,discovery,channel,anatomy,ominous,frenzy)
+difficult(streamlined,hammerhead,dynamics,replacement,cartilage,serrated,locomotion,effective,respiration,olfactory,carnivorous,solitary,mackerel,fisherman,unstoppable,incision)
+insane(caribbean,characteristics,effectiveness,respiration,thermoregulation,cannibalistic,misconception,endangered,television,overzealous,misinterpreted,apprehensive,slaughter)
+Patch of Seaweed: easy(weed,plant,patch,food,green,brown,kelp,wild,sushi,rice,group,fish,dry,chewy,slime)
+normal(seaweed,seawater,plankton,sponge,common,algae,medicine,frond,finger,ecological,delicious,entangle,edible,commercial,iodine,sunlight,ensnare,disgusting,healthy,treatment,cluster,extract,harmless)
+difficult(biodiversity,photosynthesis,fertilizer,pollution,japanese,chopsticks,preservative,inflammation,encompassing,aqueous,enticing,cultivation,contamination,potassium,congealed)
+insane(multicellular,macroscopic,cyanobacteria,strangulation,preservative,bioethanol,phytoplankton,pharmaceutical,phosphorous,bioluminescent,contamination,inflammation,preservative)
+Whirlpool: easy(water,swirl,squid,drag,cycle,wave,flow,rapid,boat,drown,surge,force,wet,epic,twist,fury,foam,chaos)
+normal(whirlpool,mermaid,consume,buoyant,current,clockwise,swordfish,equator,climate,weather,cyclone,typhoon,tropical,vortex,powerful,waterfall,downdraft,descent,circular,odyssey,generate,collision,uncharted,diameter,pressure,suction)
+difficult(whirlpool,irresistable,surrounding,countercurrent,hydrosphere,evaporation,hurricane,maelstrom,amplitude,impressive,colossal,turbulence,energetic,shipwreck,navigational,substantial,conflicting,dispersion,repulsive)
+insane(counterclockwise,oceanography,interchange,maelstrom,exaggerated,ephemeral,inescapable,metaphorically,divergence,treacherous,reverberation,enthusiastic,turbulence,atmospheric,mythological,compressed,sensation,hypothermia)
+Boss(Battleship):sink,battle,battleship,ship,boat,submarine,missile,explosion,pirate,cannonball,impenetrable,tremendous,metallic,weaponry,warfare
 }
 Future Question {
-Cyborg: cyborg,machine,terminate,mechanical,emotionless,precision
-Hovercar: hover,car,vehicle
-Genetically Engineered Human: brain,human,genetically,computer,addicted,engineered,internet,metabolism
-Boss(Robotron 3000): robot,laser,mechanical
+Cyborg: cyborg,machine,terminate,mechanical,emotionless,precision,mannequin,surrender,resistance,futile
+Hovercar: hover,car,vehicle,electromagnetic,drive
+Genetically Engineered Human: brain,human,genetically,computer,addicted,engineered,internet,metabolism,degenerate
+Boss(Robotron 3000): robot,laser,mechanical,automaton
 }
 The Abandoned Schoolhouse {
 Spelling Bee: buzz,sting,spell
 Detention: detention,afterschool,trouble,discipline
-Exam: test,exam,difficult,nervewracking
+Exam: test,exam,difficult,nervewracking,summarize
 Boss(Phantom Schoolteacher): arithmetic,geography,calculus,shakespeare,english
 }
 Secret {

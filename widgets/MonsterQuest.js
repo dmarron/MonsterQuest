@@ -601,9 +601,9 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 					} else if (this.areaSelected == 1) {
 						this.combat(this.currentArea.name,50,300,30,50);
 					} else if (this.areaSelected == 2) {
-						this.combat(this.currentArea.name,75,350,50,80);
+						this.combat(this.currentArea.name,75,400,50,80);
 					} else if (this.areaSelected == 3) {
-						this.combat(this.currentArea.name,100,500,100,100);
+						this.combat(this.currentArea.name,100,650,100,100);
 					} else {
 						this.combat(this.currentArea.name,45+this.level*5,100+this.level*40,100,100);
 					}
@@ -2656,7 +2656,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 			this.damage = Math.round(((6/(/*this.difficulty*/2+4))*(this.magicLevel*1.5)*(this.power/75 + 1)));
 			//cold blast sound
 			if (this.power >= 40) {
-				this.frozen = 2;
+				this.frozen = 3;
 				if (this.onFire > 1) {
 					//if you freeze a monster, it is no longer on fire
 					this.onFire = 1;
@@ -2708,7 +2708,7 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 				this.currentMessage = "Healed for " + this.damage;
 			}
 		}
-		if (this.frozen == 2) {
+		if (this.frozen == 3) {
 			this.currentMessage += "<br>The monster is frozen by cold blast";
 		}
 		if (this.onFire >= 1) {
@@ -2828,10 +2828,12 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 	takeDamage: function(e) {
 		this.damage = Math.round(((this.difficulty+4)/6)*this.monsterAttack*((100-this.power/1.4)/100));
 		if (this.frozen >= 1) {
-			if (this.frozen == 2) {
-				this.damage = Math.ceil(this.damage*0.2);
-			} else if (this.frozen == 1) {
+			if (this.frozen == 3) {
+				this.damage = Math.ceil(this.damage*0.25);
+			} else if (this.frozen == 2) {
 				this.damage = Math.ceil(this.damage*0.5);
+			} else if (this.frozen == 1) {
+				this.damage = Math.ceil(this.damage*0.75);
 			}
 		}
 		this.currentMessage = "Lost " + this.damage + " health";
@@ -3399,28 +3401,16 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 		ctx.fillText("Press Q to look for quests.",10,60);
 		ctx.fillText("Press O for more options.",10,120);
 		//ctx.fillText("Press F to fight a difficult monster.",10,150);
-		if (this.hintSelected == 0) {
-			ctx.fillText("Hint: Press D while in town to change the difficulty level",10,180);
-		} else if (this.hintSelected == 1) {
-			ctx.fillText("Hint: Press M while in town to hear funny descriptions of",10,180);
-			ctx.fillText("the monsters you have encountered",10,210);
-		} else if (this.hintSelected == 2) {
-			ctx.fillText("Hint: Press T while in town to visit the personal trainer",10,180);
-			ctx.fillText("and spend gold to raise your skills",10,210);
-		} else if (this.hintSelected == 3) {
-			ctx.fillText("Hint: Press A while in town if you want to redistribute",10,180);
-			ctx.fillText("your combat and magic skills",10,210);
-		} else if (this.hintSelected == 4) {
-			ctx.fillText("Hint: Press S while in town to hear detailed explanations",10,180);
-			ctx.fillText("of each spell",10,210);
-			this.hintSelected = -1;
-		}
-		this.hintSelected++;
 		if (this.questLevel == 0) {
 			//this.townMessages[0].volume = 1;
 			//this.townMessages[0].play();
 			this.disconnectAudio();
 			this.audioQueue.push(this.townMessages[0]);
+			if (this.hintSelected == 0) {
+				ctx.fillText("Hint: Press D while in town to change the difficulty level",10,180);
+				this.audioQueue.push(this.hintMessages[this.hintSelected]);
+				this.hintSelected++;
+			}
 			this.soundEnded();
 			this.townMessages[0] = this.townMessages[23];
 		} else {
@@ -3617,6 +3607,28 @@ dojo.declare('myapp.MonsterQuest', [dijit._Widget, dijit._Templated], {
 					this.audioQueue.push(this.townMessages[21]);
 				}
 				this.audioQueue.push(this.recordedMessages[31]);
+				if (this.hintSelected == 0) {
+					ctx.fillText("Hint: Press D while in town to change the difficulty level",10,180);
+					this.audioQueue.push(this.hintMessages[this.hintSelected]);
+				} else if (this.hintSelected == 1) {
+					ctx.fillText("Hint: Press M while in town to hear funny descriptions of",10,180);
+					ctx.fillText("the monsters you have encountered",10,210);
+					this.audioQueue.push(this.hintMessages[this.hintSelected]);
+				} else if (this.hintSelected == 2) {
+					ctx.fillText("Hint: Press T while in town to visit the personal trainer",10,180);
+					ctx.fillText("and spend gold to raise your skills",10,210);
+					this.audioQueue.push(this.hintMessages[this.hintSelected]);
+				} else if (this.hintSelected == 3) {
+					ctx.fillText("Hint: Press A while in town if you want to redistribute",10,180);
+					ctx.fillText("your combat and magic skills",10,210);
+					this.audioQueue.push(this.hintMessages[this.hintSelected]);
+				} else if (this.hintSelected == 4) {
+					ctx.fillText("Hint: Press S while in town to hear detailed explanations",10,180);
+					ctx.fillText("of each spell",10,210);
+					this.audioQueue.push(this.hintMessages[this.hintSelected]);
+					this.hintSelected = -1;
+				}
+				this.hintSelected++;
 				this.soundEnded();
 			}
 		}
